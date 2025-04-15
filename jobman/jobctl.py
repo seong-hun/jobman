@@ -99,7 +99,6 @@ def result(job_id):
 def list_jobs():
     try:
         resp = requests.get(f"{get_host()}/jobs")
-        breakpoint()
         resp.raise_for_status()
         jobs = resp.json()
 

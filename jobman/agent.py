@@ -1,6 +1,7 @@
 import os
 import subprocess
 import threading
+import argparse
 
 import psutil
 from flask import Flask, jsonify, request
@@ -69,5 +70,11 @@ def get_gpu_count():
         return 0
 
 if __name__ == "__main__":
-    os.makedirs("/tmp/jobs", exist_ok=True)
-    app.run(host="0.0.0.0", port=5000)
+    parser = argparse.ArgumentParser(description="Run the agent service.")
+    parser.add_argument("run", action="store_true", help="Run the agent service.")
+    parser.add_argument("--port", type=int, default=5000, help="Port to run the agent on.")
+    args = parser.parse_args()
+
+    if args.run:
+        os.makedirs("/tmp/jobs", exist_ok=True)
+        app.run(host="0.0.0.0", port=args.port)
