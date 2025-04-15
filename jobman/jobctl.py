@@ -214,15 +214,10 @@ def main():
     )
 
     p7 = sub.add_parser("scheduler")
-    p7.add_argument(
-        "apply", action="store_true", help="Apply a scheduler configuration."
-    )
-    p7.add_argument(
-        "--config",
-        type=str,
-        required=True,
-        help="Path to the scheduler configuration file.",
-    )
+    scheduler_sub = p7.add_subparsers(dest="scheduler_command")
+
+    p7_apply = scheduler_sub.add_parser("apply", help="Apply a scheduler configuration.")
+    p7_apply.add_argument("config", type=str, help="Path to the scheduler configuration file.")
 
     p8 = sub.add_parser("jobs")
     jobs_sub = p8.add_subparsers(dest="jobs_command")
@@ -263,7 +258,7 @@ def main():
                 print(f"Key {args.key} not found.")
     elif args.command == "agent" and args.agent_command == "run":
         run_agent(args.port)
-    elif args.command == "scheduler" and args.apply:
+    elif args.command == "scheduler" and args.scheduler_command == "apply":
         apply_scheduler(args.config)
     elif args.command == "jobs" and args.jobs_command == "ls":
         list_jobs()
