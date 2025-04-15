@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -e .
 EXPOSE 5000
 
 # Define the default command to run the scheduler
-CMD ["jobman", "scheduler", "apply", "configs/scheduler.yaml"]
+CMD ["jobctl", "scheduler", "apply", "configs/scheduler.yaml"]

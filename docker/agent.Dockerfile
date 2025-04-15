@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -e .
 EXPOSE 5000
 
 # Define the default command to run the agent
-CMD ["jobman", "agent", "run", "--port", "5000"]
+CMD ["jobctl", "agent", "run", "--port", "5000"]
