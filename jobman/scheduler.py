@@ -78,5 +78,14 @@ def job_result(job_id):
         print(f"Error fetching result for job {job_id}: {e}")
         return jsonify({"error": "Failed to fetch job result"}), 500
 
+@app.route("/jobs", methods=["GET"])
+def list_jobs():
+    if not JOBS:
+        return jsonify([])  # Return an empty list if no jobs are running
+    job_list = []
+    for job_id, job in JOBS.items():
+        job_list.append({"job_id": job_id, "status": job["status"], "agent": job["agent"]})
+    return jsonify(job_list)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

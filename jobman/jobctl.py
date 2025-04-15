@@ -1,34 +1,62 @@
 import argparse
+import os
+import subprocess
+
 import requests
 import yaml
-import subprocess
-import os
 
 CONFIG_FILE = os.path.expanduser("~/.jobmanrc.yaml")
+LOCAL_CONFIG_FILE = os.path.join(os.getcwd(), ".jobmanrc.yaml")
 
 
-def load_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, "r") as f:
+def load_config(global_config=True):
+    config_file = CONFIG_FILE if global_config else LOCAL_CONFIG_FILE
+    if os.path.exists(config_file):
+        with open(config_file, "r") as f:
             return yaml.safe_load(f)
     return {}
 
 
-def save_config(config):
-    with open(CONFIG_FILE, "w") as f:
+def save_config(config, global_config=True):
+    config_file = CONFIG_FILE if global_config else LOCAL_CONFIG_FILE
+    with open(config_file, "w") as f:
         yaml.safe_dump(config, f)
 
 
-def set_host(host):
-    config = load_config()
-    config["host"] = host
-    save_config(config)
-    print(f"Host set to {host}")
+def set_config(key, value, global_config=True):
+    config = load_config(global_config)
+    config[key] = value
+    save_config(config, global_config)
+    scope = "global" if global_config else "local"
+    print(f"Set {key} to {value} in {scope} configuration.")
+
+
+def get_config(key, global_config=True):
+    config = load_config(global_config)
+    return config.get(key, None)
+
+
+def get_effective_config():
+    """Merge global and local configurations, with local taking precedence."""
+    global_config = load_config(global_config=True)
+    local_config = load_config(global_config=False)
+    effective_config = global_config.copy()
+    effective_config.update(local_config)  # Local config overwrites global config
+    return effective_config
 
 
 def get_host():
-    config = load_config()
-    return config.get("host", "http://localhost:8000")
+    config = get_effective_config()
+    host = config.get("host", "http://localhost:8000")
+    host = host.removeprefix("http://")
+    host = host.removeprefix("https://")
+    host = "http://" + host
+    return host
+
+
+def set_host(host):
+    set_config("host", host, global_config=True)
+    print(f"Host set to {host}")
 
 
 def submit(script_path, cpu, memory, gpu, host=None):
@@ -66,6 +94,25 @@ def result(job_id):
         print(resp.json())
     except requests.RequestException as e:
         print(f"Error fetching job result: {e}")
+
+
+def list_jobs():
+    try:
+        resp = requests.get(f"{get_host()}/jobs")
+        breakpoint()
+        resp.raise_for_status()
+        jobs = resp.json()
+
+        if not jobs:
+            print("No running jobs.")
+        else:
+            print("Running Jobs:")
+            for job in jobs:
+                print(
+                    f"- ID: {job['id']}, Status: {job['status']}, Resources: {job['resources']}"
+                )
+    except requests.RequestException as e:
+        print(f"Error fetching jobs: {e}")
 
 
 def apply_yaml(file_path):
@@ -108,6 +155,24 @@ def apply_yaml(file_path):
                     )
 
 
+def run_agent(port):
+    print(f"Starting agent on port {port}...")
+    # Logic to start the agent service
+    subprocess.run(["python", "-m", "jobman.agent", "--port", str(port)], check=True)
+
+
+def apply_scheduler(config_path):
+    print(f"Applying scheduler configuration from {config_path}...")
+    # Logic to apply scheduler configuration
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+        print(f"Scheduler configuration: {config}")
+        # Start the scheduler with the given configuration
+        subprocess.run(
+            ["python", "-m", "jobman.scheduler", "--config", config_path], check=True
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="JobCTL CLI for managing jobs and services."
@@ -131,7 +196,35 @@ def main():
     p4.add_argument("file", help="Apply a YAML configuration file.")
 
     p5 = sub.add_parser("config")
-    p5.add_argument("host", help="Set the default scheduler host URL")
+    p5.add_argument("key", help="Configuration key.")
+    p5.add_argument("value", nargs="?", help="Configuration value.")
+    p5.add_argument(
+        "--global",
+        action="store_true",
+        help="Set global configuration.",
+        dest="global_config",
+    )
+    p5.add_argument("--local", action="store_true", help="Set local configuration.")
+
+    p6 = sub.add_parser("agent")
+    p6.add_argument("run", action="store_true", help="Run the agent service.")
+    p6.add_argument("--port", type=int, default=8001, help="Port to run the agent on.")
+
+    p7 = sub.add_parser("scheduler")
+    p7.add_argument(
+        "apply", action="store_true", help="Apply a scheduler configuration."
+    )
+    p7.add_argument(
+        "--config",
+        type=str,
+        required=True,
+        help="Path to the scheduler configuration file.",
+    )
+
+    p8 = sub.add_parser("jobs")
+    jobs_sub = p8.add_subparsers(dest="jobs_command")
+
+    p8_ls = jobs_sub.add_parser("ls", help="List running jobs.")
 
     args = parser.parse_args()
     if args.command == "submit":
@@ -146,7 +239,31 @@ def main():
         else:
             print(f"File {args.file} does not exist.")
     elif args.command == "config":
-        set_host(args.host)
+        if args.value:
+            if args.global_config:
+                set_config(args.key, args.value, global_config=True)
+            elif args.local:
+                set_config(args.key, args.value, global_config=False)
+            else:
+                print("Specify either --global or --local.")
+        else:
+            if args.global_config:
+                value = get_config(args.key, global_config=True)
+            elif args.local:
+                value = get_config(args.key, global_config=False)
+            else:
+                print("Specify either --global or --local.")
+                exit(1)
+            if value is not None:
+                print(f"{args.key}: {value}")
+            else:
+                print(f"Key {args.key} not found.")
+    elif args.command == "agent" and args.run:
+        run_agent(args.port)
+    elif args.command == "scheduler" and args.apply:
+        apply_scheduler(args.config)
+    elif args.command == "jobs" and args.jobs_command == "ls":
+        list_jobs()
 
 
 if __name__ == "__main__":

@@ -45,3 +45,7 @@ where = ["."]
 
 [tool.hatch.build.targets.wheel]
 packages = ["jobman"]
+
+[tool.poetry.dependencies]
+requests = "*"
+PyYAML = "*"
