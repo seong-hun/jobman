@@ -206,8 +206,12 @@ def main():
     p5.add_argument("--local", action="store_true", help="Set local configuration.")
 
     p6 = sub.add_parser("agent")
-    p6.add_argument("run", action="store_true", help="Run the agent service.")
-    p6.add_argument("--port", type=int, default=8001, help="Port to run the agent on.")
+    agent_sub = p6.add_subparsers(dest="agent_command")
+
+    p6_run = agent_sub.add_parser("run", help="Run the agent service.")
+    p6_run.add_argument(
+        "--port", type=int, default=5000, help="Port to run the agent on."
+    )
 
     p7 = sub.add_parser("scheduler")
     p7.add_argument(
@@ -257,7 +261,7 @@ def main():
                 print(f"{args.key}: {value}")
             else:
                 print(f"Key {args.key} not found.")
-    elif args.command == "agent" and args.run:
+    elif args.command == "agent" and args.agent_command == "run":
         run_agent(args.port)
     elif args.command == "scheduler" and args.apply:
         apply_scheduler(args.config)

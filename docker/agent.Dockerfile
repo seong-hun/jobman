@@ -17,4 +17,4 @@ RUN jobctl agent run --port 5000
 EXPOSE 5000
 
 # Define the default command to run the agent
-CMD ["python", "-m", "jobman.agent"]
+CMD ["jobman", "agent", "run", "--port", "5000"]
