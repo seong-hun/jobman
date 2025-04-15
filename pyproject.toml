@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jobman"
+version = "0.1.0"
+description = "A lightweight job manager"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    { name = "Seong-hun Kim", email = "kshoon92@gmail.com" }
+]
+keywords = ["import", "dependency", "job", "manager", "python", "cli", "lint"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities"
+]
+dependencies = [
+  "requests",
+  "psutil",
+  "flask",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/seong-hun/jobman"
+"Bug Tracker" = "https://github.com/seong-hun/jobman/issues"
+
+[project.scripts]
+jobctl = "jobman.jobctl:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.hatch.build.targets.wheel]
+packages = ["jobman"]
