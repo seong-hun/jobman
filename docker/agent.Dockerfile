@@ -11,7 +11,7 @@ COPY . /app
 RUN pip install --no-cache-dir -e .
 
 # Expose the port for the agent
-EXPOSE 8001
+EXPOSE 5000
 
 # Define the default command to run the agent
 CMD ["python", "-m", "jobman.agent"]

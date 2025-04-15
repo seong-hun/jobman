@@ -11,18 +11,18 @@ services:
       context: ./
       dockerfile: docker/agent.Dockerfile
     ports:
-      - "8001:8001"
+      - "8001:5000"
 
   agent2:
     build:
       context: ./
       dockerfile: docker/agent.Dockerfile
     ports:
-      - "8002:8001"
+      - "8002:5000"
 
   agent3:
     build:
       context: ./
       dockerfile: docker/agent.Dockerfile
     ports:
-      - "8003:8001"
+      - "8003:5000"
