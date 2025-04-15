@@ -10,6 +10,9 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -e .
 
+# Apply scheduler configuration
+RUN jobctl scheduler apply configs/scheduler.yaml
+
 # Expose the port for the scheduler
 EXPOSE 5000
 

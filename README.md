@@ -27,6 +27,12 @@ Light Job Manager is a lightweight job management system designed to manage and 
 
 The `jobctl` CLI tool is used to interact with the job manager.
 
+#### Apply a YAML Configuration
+```bash
+jobctl apply <config_file>
+```
+Use this command to apply a YAML configuration file that defines schedulers, agents, and jobs.
+
 #### Submit a Job
 ```bash
 jobctl submit <script_path> --cpu <num_cpus> --memory <memory_mb> --gpu <num_gpus>
@@ -40,6 +46,36 @@ jobctl status <job_id>
 #### Retrieve Job Result
 ```bash
 jobctl result <job_id>
+```
+
+### YAML Configuration
+
+You can define schedulers, agents, and jobs in a YAML file and apply them using the `jobctl apply` command. Below is an example configuration:
+
+```yaml
+kind: Scheduler
+spec:
+  port: 8000
+
+---
+kind: Agent
+spec:
+  name: agent1
+  port: 8001
+
+---
+kind: Job
+spec:
+  script: "example.py"
+  resources:
+    cpu: 2
+    memory: 1024
+    gpu: 1
+```
+
+Save this configuration to a file (e.g., `config.yaml`) and apply it:
+```bash
+jobctl apply config.yaml
 ```
 
 ### REST API

@@ -30,6 +30,7 @@ dependencies = [
   "requests",
   "psutil",
   "flask",
+  "pyyaml",
 ]
 
 [project.urls]

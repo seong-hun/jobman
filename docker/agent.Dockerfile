@@ -10,6 +10,9 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -e .
 
+# Run the agent on port 8001
+RUN jobctl agent run --port 8001
+
 # Expose the port for the agent
 EXPOSE 5000
 
