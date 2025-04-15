@@ -4,7 +4,9 @@ services:
       context: ./
       dockerfile: docker/scheduler.Dockerfile
     ports:
-      - "8000:8000"
+      - "8000:5000"
+    volumes:
+      - ./jobman:/app/jobman
 
   agent1:
     build:
@@ -12,6 +14,8 @@ services:
       dockerfile: docker/agent.Dockerfile
     ports:
       - "8001:5000"
+    volumes:
+      - ./jobman:/app/jobman
 
   agent2:
     build:
@@ -19,6 +23,8 @@ services:
       dockerfile: docker/agent.Dockerfile
     ports:
       - "8002:5000"
+    volumes:
+      - ./jobman:/app/jobman
 
   agent3:
     build:
@@ -26,3 +32,5 @@ services:
       dockerfile: docker/agent.Dockerfile
     ports:
       - "8003:5000"
+    volumes:
+      - ./jobman:/app/jobman

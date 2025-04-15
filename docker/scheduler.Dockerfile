@@ -11,7 +11,7 @@ COPY . /app
 RUN pip install --no-cache-dir -e .
 
 # Expose the port for the scheduler
-EXPOSE 8000
+EXPOSE 5000
 
 # Define the default command to run the scheduler
 CMD ["python", "-m", "jobman.scheduler"]
